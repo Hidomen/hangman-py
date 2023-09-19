@@ -24,7 +24,7 @@ def main() :
     # LIFE
     life = 6
     # GUESSED LETTERS
-    guess = ["A","B","C"]
+    guess = []
     
     gui(copyword, life, guess)
     inp(life, word, guess, copyword)
@@ -53,6 +53,7 @@ def checkletter(life, word, letter, copyword, guess) :
     if search != -1 :
         #success
         print("horrayy")
+        checkgame(life, copyword, word, guess)
     else :
         life -= 1
 
