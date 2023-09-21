@@ -1,89 +1,162 @@
-import random
+# CHALLENGES 
+    # ADD SCORES
+    # MAKE DATABASE OF SCORES
 
-alphabet = [
-        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", 
-        ]
+import random
+from words import word_list
 
 def main() :
-    # WORDLIST
-    list = [
-    "EYE",
-    "BOWL",
-    "MOUSE"
-    ]
-    # CHOOSING RANDOM WORD
-    rndom = random.randint(0,len(list) - 1)
-    word = list[rndom]
-    # COPYWORD
-    """
-        copyword = []
-    for i in range(len(word) - 1) :
-        copyword[i] = "_" 
-    """
-    copyword = word # temporarily
-    # LIFE
+    word = pick_word()
+    game(word)
+    
+    while input("WANNA PLAY AGAIN ? (Y/N) : ").upper() == "Y" :
+        word = pick_word()
+        game(word)
+        # how can it looping idk actually??
+
+
+def pick_word () : 
+    word = random.choice(word_list)
+    return word.upper() ### what return does
+
+
+def game (word) : 
+    # 
+    word_copy = "_" * len(word)
+    found = False
+    guessed_letters = []
+    guessed_words = []
     life = 6
-    # GUESSED LETTERS
-    guess = []
-    
-    gui(copyword, life, guess)
-    inp(life, word, guess, copyword)
+    # display sec
+    print(display_hangman(life))
+    # displaying word_copy
+    for i in range(len(word_copy)) :
+        print(word_copy[i], end=" ")
+    print("\n")
 
-def inp(life, word, guess, copyword) :
-    while True :
-            letter = input("> ").upper()
-            if letter in alphabet :
-                if letter not in guess :
-                    # success
-                    guess.append(letter)
-                    checkletter(life, word, letter, copyword, guess)
-                    break
-                else :
-                    print("you already guessed that letter")
-            else :
-                print("ERROR")
-    
-def checkletter(life, word, letter, copyword, guess) :
-                    # add letter to guess (upper())
-                    # if there is no {letter} in word -> life -= 1
-                    # else open letters
-    search = word.find(letter)
-
-    
-    if search != -1 :
-        #success
-        print("horrayy")
-        checkgame(life, copyword, word, guess)
-    else :
-        life -= 1
-
-        checkgame(life, copyword, word, guess)
+    while not found and life > 0 :
+        guess = input("GUESS A LETTER OR WORD : ").upper()
+        # PLAYER GUESSED LETTER
+        if len(guess) == 1 and guess.isalpha() : # (isalpha checks is it from alphabet)
+            if guess in guessed_letters : # already guessed
+                print(f"ALREADY GUESSED {guess}")
+            elif guess not in word : # wrong guess
+                print("WRONG GUESS")
+                life -= 1
+                guessed_letters.append(guess)
+            else : # CORRECT guess (letter)
+                print("CORRECT GUESS")
+                guessed_letters.append(guess)
+                # turning on the guessed letters
+                temp_list = list(word_copy) # making a temp list cuz word_copy is a str and str is immutable but list is mutable
+                for i in range(len(word)) :
+                    if word[i] == guess :
+                        temp_list[i] = guess 
+                        word_copy = temp_list
+                    #
+            if "_" not in word_copy : # if there is no empty spaces then finish game
+                found = True
+        # PLAYER GUESSED WORD
+        elif len(guess) == len(word) and guess.isalpha() :
+            if guess in guessed_words : # already guessed
+                print("ALREADY GUESSED", guess)
+            elif guess != word : # wrong guess
+                print("WRONG GUESS")
+                life -= 1
+                guessed_words.append(guess)
+            else : # CORRECT guess (word)
+                found = True
+                word_copy = word
+        else :
+            print("Not a valid guess")
         
-def checkgame(life, copyword, word, guess) :
-    if life == 0 : # or copyword == word
-        print("GAME OVER")
+        # looping again
+        print(display_hangman(life))
+        # displaying word_copy
+        for i in range(len(word_copy)) :
+            print(word_copy[i], end=" ")
+        print("\n")
+
+    if found :
+        print(f"CONGRATULATIONS YOU FOUND THE {word}")
     else :
-        gui(copyword, life, guess)
-        inp(life, word, guess, copyword)
+        print(f"DAMN WORD WAS -> {word}\n")
 
-def gui(copyword, life, guess) :
-    size = len(copyword)
-    # WORD
-    print("WORD : ")
-    for i in range(size) :
-        print(f"_{copyword[i]}_ ", end="")
-    print("\n")
 
-    # LIFES
-    print("LIFES : ", end="")
-    for i in range(life) :
-        print(f"O ", end="")
-    print("\n")
+def display_hangman (life) :
+    stages = [
+        """
+            ---------
+            |       |
+            |       O
+            |      -|-
+            |      / \\
+            |
+           / \\  LITTLE MAN DEAD   
+          /   \\      
+        """,
+        """
+            ---------
+            |       |
+            |       O
+            |      -|-
+            |      /
+            |
+           / \\
+          /   \\
+        """,
+        """
+            ---------
+            |       |
+            |       O
+            |      -|-
+            |
+            |
+           / \\
+          /   \\
+        """,
+        """
+            ---------
+            |       |
+            |       O
+            |      -|
+            |       
+            |
+           / \\
+          /   \\
+        """,
+        """
+            ---------
+            |       |
+            |       O
+            |       |
+            |
+            |
+           / \\
+          /   \\
+        """,
+        """
+            ---------
+            |       |
+            |       O
+            |
+            |
+            |
+           / \\
+          /   \\
+        """,
+        """
+            ---------
+            |       |
+            |
+            |
+            |
+            |
+           / \\
+          /   \\
+        """
+    ]
+    return stages[life]
 
-    # GUESSES
-    print("GUESSED LETTERS : ", end="")
-    for i in range(len(guess)) :
-        print(f"{guess[i]} ", end="")
-    print("\n")
 
 main()
